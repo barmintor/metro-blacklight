@@ -2,3 +2,27 @@
 
 * bundle install
 * rake db:migrate
+
+== Set Up Blacklight Jetty and Get Some Test Data
+
+* rake jetty:clean
+* rake jetty:start
+* mkdir tmp/marc
+* curl -L https://github.com/projectblacklight/blacklight-data/raw/master/lc_records.utf8.mrc -o tmp/marc/lc_records.utf8.mrc
+* rake solr:marc:index_test_data
+* rake solr:marc:index MARC_FILE=tmp/marc/lc_records.utf8.mrc
+
+You should be able to browse about 9800 records at http://localhost:8983/solr/#/blacklight-core/query
+
+== Run Your Workshop App
+
+* rails s
+
+You should be able to see a running Blacklight at http://localhost:3000/
+
+== To Use Range Limits
+
+* add gem "blacklight_range_limit"
+* bundle install
+* rails generate blacklight_range_limit
+* add :range => true to the relevant facet config

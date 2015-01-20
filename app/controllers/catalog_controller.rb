@@ -5,8 +5,6 @@ class CatalogController < ApplicationController
 
   include Blacklight::Catalog
 
-  include Metro::SolrSearchBehavior
-
   configure_blacklight do |config|
     ## Default parameters to send to solr for all search-like requests. See also SolrHelper#solr_search_params
     config.default_solr_params = { 
@@ -66,7 +64,7 @@ class CatalogController < ApplicationController
     config.add_facet_field 'subject_geo_facet', :label => 'Region' 
     config.add_facet_field 'subject_era_facet', :label => 'Era'  
 
-    config.add_facet_field 'example_pivot_field', :label => 'Pivot Field', :pivot => ['language_facet','format','genre_facet']
+    config.add_facet_field 'example_pivot_field', :label => 'Pivot Field', :pivot => ['format', 'language_facet']
 
     config.add_facet_field 'example_query_facet_field', :label => 'Publish Date', :query => {
        :years_5 => { :label => 'within 5 Years', :fq => "pub_date:[#{Time.now.year - 5 } TO *]" },
@@ -91,11 +89,6 @@ class CatalogController < ApplicationController
     config.add_index_field 'published_display', :label => 'Published'
     config.add_index_field 'published_vern_display', :label => 'Published'
     config.add_index_field 'lc_callnum_display', :label => 'Call number'
-    config.add_index_field 'ol_s', :label => 'OpenLibrary ID'
-    config.add_index_field 'ol_cover_s', :label => 'OpenLibrary Cover ID', :if => false
-    config.add_index_field 'ol_author_display', :label => 'OpenLibrary Author', :helper_method => :translate_ol_author,
-                           :link_to_search => 'ol_author_facet'
-    config.add_index_field 'librarything_s', :label => 'LibraryThing ID'
 
     # solr fields to be displayed in the show (single result) view
     #   The ordering of the field names is the order of the display 
@@ -187,4 +180,4 @@ class CatalogController < ApplicationController
     config.spell_max = 5
   end
 
-end 
+end
