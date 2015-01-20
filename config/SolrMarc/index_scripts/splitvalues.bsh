@@ -1,0 +1,38 @@
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+import org.apache.log4j.Logger;
+import org.marc4j.marc.*;
+import org.solrmarc.marc.MarcImporter;
+import org.solrmarc.tools.Utils;
+import org.solrmarc.index.SolrIndexer;
+
+protected static Logger logger = Logger.getLogger(MarcImporter.class.getName());
+// define the base level indexer so that its methods can be called from the script.
+// note that the SolrIndexer code will set this value before the script methods are called.
+SolrIndexer indexer = null;
+
+/**
+ * Return the mapped value split into a Set by the delimiting String
+ * @param record - the marc record object
+ * @param selector - the field pattern
+ * @param translation - the name of the translation map
+ * @return 260c, "cleaned" per org.solrmarc.tools.Utils.cleanDate()
+ */
+public Set splitCSV(Record record, String translation)
+{
+    Set values = indexer.getFieldList(record, "001");
+    String mapName = indexer.loadTranslationMap(translation);
+    LinkedHashSet resultSet = new LinkedHashSet();
+    for (String value : values)
+    {
+        String valueMapped = Utils.remap(value, indexer.findMap(mapName), true);
+        if (valueMapped != null) {
+            String[] valueSplit = valueMapped.split("[,]");
+            for (String split: valueSplit) {
+                resultSet.add(split);
+            }
+        }
+    }
+
+    return resultSet;
+}
