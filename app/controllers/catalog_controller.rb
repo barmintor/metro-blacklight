@@ -72,6 +72,10 @@ class CatalogController < ApplicationController
        :years_25 => { :label => 'within 25 Years', :fq => "pub_date:[#{Time.now.year - 25 } TO *]" }
     }
 
+    config.add_facet_field 'thumbnail_query_facet', :label => 'Has Thumbnail?', :query => {
+        :yes => {:label => 'Yes', :fq => "ol_cover_s:*"}
+    }
+
 
     # Have BL send all facet field names to Solr, which has been the default
     # previously. Simply remove these lines if you'd rather use Solr request
