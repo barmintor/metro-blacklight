@@ -3,6 +3,10 @@ Rails.application.routes.draw do
   blacklight_for :catalog
   Blacklight::Marc.add_routes(self)
   devise_for :users
+  resources :clouds, only: :show do
+    get 'data' => 'clouds#data'
+  end
+  get 'clouds_data' => 'clouds#seuss'
   # The priority is based upon order of creation: first created -> highest priority.
   # See how all your routes lay out with "rake routes".
 
