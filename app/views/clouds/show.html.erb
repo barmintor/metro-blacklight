@@ -115,7 +115,7 @@ var stopWords = /^(i|me|my|myself|we|us|our|ours|ourselves|you|your|yours|yourse
     matchTwitter = /^https?:\/\/([^\.]*\.)?twitter\.com/;
 
 //hashchange("http://localhost:3000/cat-in-the-hat.txt");
-d3.json('/clouds_data.json', function(json) {generate(json)});
+d3.json('<%= cloud_data_url(cloud_id: params[:id], format: :json)%>', function(json) {generate(json)});
 
 function parseHTML(d) {
   parseText(d.replace(htmlTags, " ").replace(/&#(x?)([\dA-Fa-f]{1,4});/g, function(d, hex, m) {
