@@ -1,5 +1,20 @@
+$metro-blue: #00476C;
+$metro-gray: #b7b7b7;
+$logo_image: 'http://metro.org/themes/metro-2013/media/images/lo.png';
+$navbar-default-bg: $metro-blue;
+$navbar-default-color: $metro-gray;
+$navbar-inverse-bg: $metro-gray;
+$navbar-inverse-link-color: darken($metro-gray, 25%);
+$navbar-inverse-color: $metro-blue;
+
 @import 'bootstrap-sprockets';
 
 @import 'bootstrap';
 
 @import 'blacklight/blacklight';
+
+#header-navbar {
+  .navbar-brand {
+  	text-indent: 0;
+  }
+}
