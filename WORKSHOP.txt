@@ -1,0 +1,138 @@
+* INSTALL INSTRUCTIONS *
+Use Ruby 2.1 for now, and JDK 7+
+This is important! You must have JDK 7 or higher, and there are temporarily some issues with Ruby 2.2
+Use Ruby 2.1 for now, and JDK 7+
+** FROM SCRATCH **
+> gem install bundler
+> gem install rails
+> rails new metro
+> cd metro
+> echo "gem 'blacklight', '>= 5.3.0'" >> Gemfile
+*** WINDOWS NOTE ***
+add to Gemfile:
+ gem 'tzinfo-data', platforms: [:mingw, :mswin, :x64_mingw]
+** EVERYONE **
+> bundle install
+> rails generate blacklight:install --devise --marc --jettywrapper
+ (discuss these generator switches)
+ ** CHEAT (use if you want to follow git branches) **
+> git clone https://github.com/barmintor/metro-blacklight
+> cd metro-blacklight
+> git checkout fresh-blacklight
+*** WINDOWS NOTE ***
+add to Gemfile:
+ gem 'tzinfo-data', platforms: [:mingw, :mswin, :x64_mingw]
+> bundle install
+** SETUP **
+> rake db:migrate
+(discuss solr as a java app)
+*** Mac or *nix NOTE ***
+> rake jetty:clean
+(wait for download, will clear local solr index)
+*** WINDOWS NOTE ***
+1. download https://github.com/projectblacklight/blacklight-jetty/archive/master.zip
+2. unzip it into the root of the app, rename it jetty, then pick up at rake jetty:start
+3. update config/solr.yml by appending '/blacklight-core' to the solr URLs
+** INDEX SOME DEMO DATA **
+> rake jetty:start
+verify that you have Solr running at http://localhost:8983/solr/#/blacklight-core
+> git checkout blacklight-expanded-index
+(set up some extra demo source data)
+> mkdir tmp/marc
+> curl https://github.com/projectblacklight/blacklight-data/raw/master/lc_records.utf8.mrc -o tmp/marc/lc_records.utf8.mrc
+> rake solr:marc:index_test_data
+(ignorable JSP error/500; 30 records)
+> rake solr:marc:index MARC_FILE=tmp/marc/lc_records.utf8.mrc
+(SolrMarc MARC_FILE parameter; SolrMarc CONFIG_PATH[=config/SolrMarc/config(-RAILS_ENV).properties])
+(another ~9900 records; 1 failure for multiple title_vern_display; presumably duplicate IDs?)
+(talk about index data, should be 9825 records, look at Solr admin UI)
+(http://127.0.0.1:8983/solr/#/)
+> rails s
+(http://localhost:3000/catalog)
+
+** WHAT IS BLACKLIGHT? **
+
+SolrDocument as a sort-of model, S&D framework
+
+** EDITING THE BASIC BLACKLIGHT APPEARANCE **
+
+1. Change the Title
+a. Annoyingly, you must change some CSS first in app/assets/stylesheets/blacklight.css.scss
+
+#header-navbar {
+  .navbar-brand {
+  	text-indent: 0;
+  }
+}
+
+b. Change translation in config/locales/blacklight.en.yml { I18n.t(key) }
+c. override application_name method in helper
+
+2. Change the Logo
+a. override navbar-brand
+b. override $logo_image scss variable in blacklight.css.scss (default is "'blacklight/logo.png' !default;")
+-> try http://metro.org/themes/metro-2013/media/images/lo.png or http://metro.org/themes/metro-2013/media/images/logo.png
+
+2. Change the colors of the bootstrap theme
+
+http://getbootstrap.com/customize/#less-variables
+
+$metro-blue: #00476C;
+$metro-gray: #b7b7b7;
+$logo_image: 'http://metro.org/themes/metro-2013/media/images/lo.png';
+$navbar-default-bg: $metro-blue;
+$navbar-default-color: $metro-gray;
+$navbar-inverse-bg: $metro-gray;
+$navbar-inverse-link-color: darken($metro-gray, 25%);
+$navbar-inverse-color: $metro-blue;
+
+4. Override partials
+
+** CONFIGURE FIELDS https://github.com/projectblacklight/blacklight/wiki/Configuration---Results-View
+0. Common - key
+- Common opts: label: (string), helper_method: (symbol) 
+
+INDEX TITLE
+- config.index.title_field = 'title_display'
+
+INDEX DISPLAY TYPE AND PARTIALS
+
+app/views/catalog/_index_${display_type}.html.erb
+app/views/catalog/_index_default.html.erb
+
+
+- eg app/views/catalog/_index_book.html.erb
+- try setting up a variant partial and also a different display type, eg pub_date and app/views/catalog/_index_2005.html.erb
+
+INDEX FIELDS
+2. Result Fields https://github.com/projectblacklight/blacklight/wiki/Configuration---Results-View
+2a. Index opts: separator: (string), highlight: (true|false), link_to_search: (true|false|field_key), itemprop: (string), accessor: (string), if|unless:
+- helper_method({:document, :field, :value})
+
+3. adding index fields; solr_search_logic
+
+THUMBNAILS
+- config.index.thumbnail_field or config.index.thumbnail_method
+- talk about open_library_thumbnail
+
+FACETS
+1. Facets
+- sort: (count|index), partial: (string), collapse: (true|false), single: (true|false), query: (hash), tag|ex: (string), show: (true|false)
+- helper_method(value)
+
+- lets make a query facet to let us find some thumbnails
+
+- lets make a range facet out of pub_date (https://github.com/projectblacklight/blacklight_range_limit)
+
+SORTS
+
+
+RETRIEVE FIELD CONFIGS
+  blacklight_config.index.fields[:key]
+
+
+ADDING DOC ACTIONS https://github.com/projectblacklight/blacklight/wiki/Adding-new-document-actions
+
+CONFIGURING THE SolrDocument MODEL
+  solr_document_model = (model)
+
